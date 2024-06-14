@@ -123,28 +123,11 @@ identify_waf() {
         echo "$url" >> waf.txt
     else
         echo -e "\n[+] $url tidak menggunakan WAF"
-        echo "$url" >> notwaf.txt
+        echo "$url" >> nowaf.txt
     fi
 }
 
 # Function for dork scanning
-# Function for dork scanning
-
-
-# Function to find webshells
-find_webshell() {
-    local url=$1
-    local result
-    result=$(curl -s "$url" | grep -i "webshell")
-
-    if [[ -n $result ]]; then
-        echo -e "\n[+] Webshell ditemukan di: $url"
-        echo "$url" >> found.txthttps://www.google.com/search?q='$query'&oq='$query'&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MgYIARBFGDrSAQgzMDMyajBqNKgCDrACAQ&client=laptop-firefox&sourceid=mozilla&ie=UTF-8
-    else
-        echo -e "\n[-] Tidak ada webshell di: $url"
-        echo "$url" >> notfound.txt
-    fi
-}
 dork_scanning() {
     local query num_results urls
     read -rp "Masukkan query dork: " query
@@ -157,14 +140,30 @@ dork_scanning() {
     if [[ -n "$urls" ]]; then
         echo -e "\nURL yang ditemukan:"
         echo "$urls"
-        echo "$urls" > dork_results.txt
-        echo "Hasil pencarian dork telah disimpan ke dork_results.txt"
+        echo "$urls" > results-dork.txt
+        echo "Hasil pencarian dork telah disimpan ke results-dork.txt"
     else
         echo "Tidak ada URL yang ditemukan sesuai dengan query dork yang dimasukkan."
     fi
     
     read -rp "Tekan Enter untuk kembali ke menu utama..."
 }
+
+# Function to find webshells
+find_webshell() {
+    local url=$1
+    local result
+    result=$(curl -s "$url" | grep -i "webshell")
+
+    if [[ -n $result ]]; then
+        echo -e "\n[+] Webshell ditemukan di: $url"
+        echo "$url" >> found.txt
+    else
+        echo -e "\n[-] Tidak ada webshell di: $url"
+        echo "$url" >> notfound.txt
+    fi
+}
+
 # Main menu
 main_menu() {
     while true; do
@@ -235,7 +234,7 @@ main_menu() {
 # Function to print header ASCII art
 print_header() {
     echo -e "\e[33m
-                                     ####################
+                                     ###################
                                ##############++--++##############
                           #########--------------------------#########
                        #######----------------++#+----------------#######
@@ -251,7 +250,7 @@ print_header() {
      ####--------------------+#++-+#----------#+--#+#########-++##+-------------------+###
      ###-----------------------###+---####---++--------####+--###----------------------+###
     ###-------------------------+#+#+##################++++++-++------------------------+###
-   ####--------------------------+######################++++++-+---------------------------####
+   ####--------------------------+######################++-+-+---------------------------####
   ####--------------------------+########################++++-----------------------------###
   ###---------------------------########################++++++-+--------------------------+###
   ###---------------------#####+#######################++##+--+++#####---------------------###
@@ -268,7 +267,7 @@ print_header() {
  ###---#---------------------------+##-#########-------#+------------------------------####-###
   ##-####------------------------#####+###########+-####---+###------------------------###-###
   ###-###-----------------------###################+------++####+----------------------+-+-###
-  ###-####----------------------####+-####+##########-----+++--+####--------------------###-####
+  ####-+----------------------####+-####+##########-----+++--+####--------------------###-####
    ###-+###------------------####----##############+-+-++------####------------------#+#-###
    ####-###-----------------###------##############+##+#-+-------+##+---------------####-###
     ####-###+-------------+#+--------###################-----------+#+-------------####-####
