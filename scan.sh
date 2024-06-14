@@ -135,7 +135,7 @@ dork_scanning() {
 
     echo "Melakukan pencarian dork: '$query' dan mengambil $num_results URL..."
 
-    urls=$(curl -s "https://www.google.com/search?q=$query" | grep -oP '(?<=href="https://)[^"]*' | head -n $num_results)
+    urls=$(curl -s "" | grep -oP '(?<=href="https://)[^"]*' | head -n $num_results)
     echo -e "\nURL yang ditemukan:"
     echo "$urls"
     
@@ -151,7 +151,7 @@ find_webshell() {
 
     if [[ -n $result ]]; then
         echo -e "\n[+] Webshell ditemukan di: $url"
-        echo "$url" >> found.txt
+        echo "$url" >> found.txthttps://www.google.com/search?q='$query'&oq='$query'&gs_lcrp=EgZjaHJvbWUqBggAEEUYOzIGCAAQRRg7MgYIARBFGDrSAQgzMDMyajBqNKgCDrACAQ&client=laptop-firefox&sourceid=mozilla&ie=UTF-8
     else
         echo -e "\n[-] Tidak ada webshell di: $url"
         echo "$url" >> notfound.txt
