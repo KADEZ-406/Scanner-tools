@@ -29,6 +29,7 @@ scan_vulnerability() {
 
     if [[ -z $params ]]; then
         echo -e "\n[+] $url [ini ga vuln]"
+        echo "$url" >> notvuln.txt
         return
     fi
 
@@ -45,9 +46,11 @@ scan_vulnerability() {
         for param in "${vulnerable_params[@]}"; do
             echo "   $param"
         done
+        echo "$url" >> vuln.txt
         execute_sqlmap "$url"
     else
         echo -e "\n[+] $url [ini ga vuln]"
+        echo "$url" >> notvuln.txt
     fi
 }
 
@@ -117,8 +120,41 @@ identify_waf() {
 
     if [[ -n $waf ]]; then
         echo -e "\n[+] $url menggunakan WAF: $waf"
+        echo "$url" >> waf.txt
     else
         echo -e "\n[+] $url tidak menggunakan WAF"
+        echo "$url" >> notwaf.txt
+    fi
+}
+
+# Function for dork scanning
+dork_scanning() {
+    local query num_results urls
+    read -rp "Masukkan query dork: " query
+    read -rp "Masukkan jumlah URL yang diinginkan: " num_results
+
+    echo "Melakukan pencarian dork: '$query' dan mengambil $num_results URL..."
+
+    urls=$(curl -s "https://www.google.com/search?q=$query" | grep -oP '(?<=href="https://)[^"]*' | head -n $num_results)
+    echo -e "\nURL yang ditemukan:"
+    echo "$urls"
+    
+    echo "$urls" > dork_results.txt
+    echo "Hasil pencarian dork telah disimpan ke dork_results.txt"
+}
+
+# Function to find webshells
+find_webshell() {
+    local url=$1
+    local result
+    result=$(curl -s "$url" | grep -i "webshell")
+
+    if [[ -n $result ]]; then
+        echo -e "\n[+] Webshell ditemukan di: $url"
+        echo "$url" >> found.txt
+    else
+        echo -e "\n[-] Tidak ada webshell di: $url"
+        echo "$url" >> notfound.txt
     fi
 }
 
@@ -155,7 +191,7 @@ main_menu() {
                 read -rp "Tekan Enter untuk kembali ke menu utama..."
                 ;;
             3)
-                echo "Dork Scanning belum diimplementasikan."
+                dork_scanning
                 read -rp "Tekan Enter untuk kembali ke menu utama..."
                 ;;
             4)
@@ -164,11 +200,19 @@ main_menu() {
                 read -rp "Tekan Enter untuk kembali ke menu utama..."
                 ;;
             5)
-                echo "Mass WAF Identification belum diimplementasikan."
+                read -rp "Masukkan path ke file TXT yang berisi list URL: " file_path
+                if [[ -f $file_path ]]; then
+                    while read -r url; do
+                        identify_waf "$url"
+                    done < "$file_path"
+                else
+                    echo "[!] File tidak ditemukan: $file_path"
+                fi
                 read -rp "Tekan Enter untuk kembali ke menu utama..."
                 ;;
             6)
-                echo "Webshell Finder belum diimplementasikan."
+                read -rp "Masukkan URL untuk menemukan webshell: " url
+                find_webshell "$url"
                 read -rp "Tekan Enter untuk kembali ke menu utama..."
                 ;;
             0)
@@ -200,7 +244,7 @@ print_header() {
      ####--------------------+#++-+#----------#+--#+#########-++##+-------------------+###
      ###-----------------------###+---####---++--------####+--###----------------------+###
     ###-------------------------+#+#+##################++++++-++------------------------+###
-   ####--------------------------+######################++-+-+---------------------------####
+   ####--------------------------+######################++++++-+---------------------------####
   ####--------------------------+########################++++-----------------------------###
   ###---------------------------########################++++++-+--------------------------+###
   ###---------------------#####+#######################++##+--+++#####---------------------###
@@ -217,7 +261,7 @@ print_header() {
  ###---#---------------------------+##-#########-------#+------------------------------####-###
   ##-####------------------------#####+###########+-####---+###------------------------###-###
   ###-###-----------------------###################+------++####+----------------------+-+-###
-  ####-+----------------------####+-####+##########-----+++--+####--------------------###-####
+  ###-####----------------------####+-####+##########-----+++--+####--------------------###-####
    ###-+###------------------####----##############+-+-++------####------------------#+#-###
    ####-###-----------------###------##############+##+#-+-------+##+---------------####-###
     ####-###+-------------+#+--------###################-----------+#+-------------####-####
