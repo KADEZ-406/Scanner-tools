@@ -128,6 +128,7 @@ identify_waf() {
 }
 
 # Function for dork scanning
+# Function for dork scanning
 dork_scanning() {
     local query num_results urls
     read -rp "Masukkan query dork: " query
@@ -135,10 +136,14 @@ dork_scanning() {
 
     echo "Melakukan pencarian dork: '$query' dan mengambil $num_results URL..."
 
-    urls=$(curl -s "" | grep -oP '(?<=href="https://)[^"]*' | head -n $num_results)
+    # Buat permintaan pencarian dengan curl dan simpan hasilnya dalam variabel urls
+    urls=$(curl -s "https://www.google.com/search?q=$query" | grep -oP '(?<=href="https://)[^"]*' | head -n $num_results)
+    
+    # Cetak URL yang ditemukan
     echo -e "\nURL yang ditemukan:"
     echo "$urls"
     
+    # Simpan hasil pencarian ke dalam file dork_results.txt
     echo "$urls" > dork_results.txt
     echo "Hasil pencarian dork telah disimpan ke dork_results.txt"
 }
