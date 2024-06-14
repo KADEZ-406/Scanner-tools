@@ -129,24 +129,7 @@ identify_waf() {
 
 # Function for dork scanning
 # Function for dork scanning
-dork_scanning() {
-    local query num_results urls
-    read -rp "Masukkan query dork: " query
-    read -rp "Masukkan jumlah URL yang diinginkan: " num_results
 
-    echo "Melakukan pencarian dork: '$query' dan mengambil $num_results URL..."
-
-    # Buat permintaan pencarian dengan curl dan simpan hasilnya dalam variabel urls
-    urls=$(curl -s "https://www.google.com/search?q=$query" | grep -oP '(?<=href="https://)[^"]*' | head -n $num_results)
-    
-    # Cetak URL yang ditemukan
-    echo -e "\nURL yang ditemukan:"
-    echo "$urls"
-    
-    # Simpan hasil pencarian ke dalam file dork_results.txt
-    echo "$urls" > dork_results.txt
-    echo "Hasil pencarian dork telah disimpan ke dork_results.txt"
-}
 
 # Function to find webshells
 find_webshell() {
@@ -162,7 +145,26 @@ find_webshell() {
         echo "$url" >> notfound.txt
     fi
 }
+dork_scanning() {
+    local query num_results urls
+    read -rp "Masukkan query dork: " query
+    read -rp "Masukkan jumlah URL yang diinginkan: " num_results
 
+    echo "Melakukan pencarian dork: '$query' dan mengambil $num_results URL..."
+
+    urls=$(curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36" "https://www.google.com/search?q=$query" | grep -oP '(?<=<a href="/url?q=)[^&"]*' | grep -E '(\.php\?id=[0-9]+)' | head -n $num_results)
+    
+    if [[ -n "$urls" ]]; then
+        echo -e "\nURL yang ditemukan:"
+        echo "$urls"
+        echo "$urls" > dork_results.txt
+        echo "Hasil pencarian dork telah disimpan ke dork_results.txt"
+    else
+        echo "Tidak ada URL yang ditemukan sesuai dengan query dork yang dimasukkan."
+    fi
+    
+    read -rp "Tekan Enter untuk kembali ke menu utama..."
+}
 # Main menu
 main_menu() {
     while true; do
